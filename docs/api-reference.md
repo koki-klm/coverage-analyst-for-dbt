@@ -1,12 +1,12 @@
 ---
 layout: default
-title: API Reference — dbt SQL Branch Coverage Analyzer
+title: API Reference — CoverageAnalyst for dbt
 permalink: /docs/api-reference/
 ---
 
 # Stored Procedure API Reference
 
-dbt SQL Branch Coverage Analyzer が提供するストアドプロシージャの仕様です。  
+CoverageAnalyst for dbt が提供するストアドプロシージャの仕様です。  
 CI/CD パイプラインや独自スクリプトから呼び出す際の参考にしてください。
 
 > 🇺🇸 An English summary is provided for each section below.

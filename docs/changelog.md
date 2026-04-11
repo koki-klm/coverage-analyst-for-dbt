@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Changelog — dbt SQL Branch Coverage Analyzer
+title: Changelog — CoverageAnalyst for dbt
 permalink: /docs/changelog/
 ---
 
@@ -19,7 +19,7 @@ permalink: /docs/changelog/
 
 ### 🎉 Initial Beta Release
 
-dbt SQL Branch Coverage Analyzer の初回ベータ版です。  
+CoverageAnalyst for dbt の初回ベータ版です。  
 Snowflake Native App として Marketplace での公開を予定しています。
 
 ### Added

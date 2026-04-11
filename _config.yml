@@ -1,4 +1,4 @@
 theme: jekyll-theme-cayman
-title: dbt SQL Branch Coverage Analyzer
+title: CoverageAnalyst for dbt
 description: Measure and visualize SQL branch coverage (C1 Coverage) for dbt models on Snowflake.
 show_downloads: false

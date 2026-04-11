@@ -1,4 +1,4 @@
-# dbt Coverage Analyzer – GitHub Pages
+# CoverageAnalyst for dbt – GitHub Pages
 
 Snowflake Marketplace Profile 用のランディングページです。
 
