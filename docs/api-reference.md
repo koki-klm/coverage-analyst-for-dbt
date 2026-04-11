@@ -33,12 +33,9 @@ dbt `target.zip` を読み込み、SQL 分岐カバレッジ（C1カバレッジ
 CALL code.analyze_coverage(
   stage_path     STRING,   -- Stageパス（例: '@dbt_coverage_app.code.dbt_artifacts/target.zip'）
   model_selector STRING,   -- モデルセレクター（'*' で全モデル、'fact_sales' で特定モデル）
-  caller         STRING,   -- 実行元記録用: 'ui'（Streamlit）または 'api'（CI/CD）
-  lang           STRING    -- メッセージ言語: 'ja' または 'en'
+  lang           STRING    -- メッセージ言語: 'ja' または 'en'（省略時: 'en'）
 );
 ```
-
-> **Note**: `caller` is for audit logging only — it does not affect functionality.
 
 ### Response JSON Schema
 
@@ -100,7 +97,6 @@ USE APPLICATION dbt_coverage_app;
 CALL code.analyze_coverage(
   '@dbt_coverage_app.code.dbt_artifacts/target.zip',
   '*',
-  'api',
   'en'
 );
 ```
@@ -185,7 +181,7 @@ USE APPLICATION dbt_coverage_app;
 SET result = (
   CALL code.analyze_coverage(
     '@dbt_coverage_app.code.dbt_artifacts/target.zip',
-    '*', 'api', 'en'
+    '*', 'en'
   )
 );
 
@@ -203,7 +199,7 @@ CALL code.generate_html_report($result, 'en');
 ```bash
 snowsql -c my_connection -r accountadmin \
   -o output_format=json \
-  -q "USE APPLICATION dbt_coverage_app; CALL code.analyze_coverage('@dbt_coverage_app.code.dbt_artifacts/target.zip', '*', 'api', 'en');"
+  -q "USE APPLICATION dbt_coverage_app; CALL code.analyze_coverage('@dbt_coverage_app.code.dbt_artifacts/target.zip', '*', 'en');"
 ```
 
 ### Output format
@@ -223,7 +219,7 @@ snowsql -c my_connection -r accountadmin \
 ```powershell
 $rawOutput = snowsql -c $ConnectionName -r $Role `
   -o output_format=json `
-  -q "USE APPLICATION dbt_coverage_app; CALL code.analyze_coverage('$StagePath', '*', 'api', 'en');" 2>&1
+  -q "USE APPLICATION dbt_coverage_app; CALL code.analyze_coverage('$StagePath', '*', 'en');" 2>&1
 
 $fullText = ($rawOutput -join "`n").Trim()
 
@@ -259,7 +255,7 @@ cursor.execute("USE APPLICATION dbt_coverage_app")
 cursor.execute("""
     CALL code.analyze_coverage(
         '@dbt_coverage_app.code.dbt_artifacts/target.zip',
-        '*', 'api', 'en'
+        '*', 'en'
     )
 """)
 
