@@ -1,509 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CoverageAnalyst for dbt | Snowflake Native App</title>
-  <meta name="description" content="Measure and visualize SQL branch coverage (C1 Coverage) for dbt models on Snowflake. Integrated into CI/CD via Snowflake stored procedures." />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <title>RoughStep — Snowflake Native Apps for Modern Data Teams</title>
+  <meta name="description" content="RoughStep は Snowflake エコシステムの最適化を支援するプロダクトを提供する個人事業主のポータルです。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            snow: {
+              blue:   '#29B5E8',
+              dark:   '#11567F',
+              deeper: '#0A3B5C',
+            },
+            accent: '#00C7C7',
+            brand:  '#FF694B',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  <\/script>
+  <style>
+    .gradient-text {
+      background: linear-gradient(135deg, #29B5E8 0%, #00C7C7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-bg {
+      background: linear-gradient(160deg, #0A3B5C 0%, #0F172A 60%, #1a1f2e 100%);
+    }
+    .product-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(41, 181, 232, 0.15);
+    }
+    @keyframes shimmer {
+      0%   { opacity: 0.6; }
+      50%  { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    .logo-placeholder { animation: shimmer 2.5s ease-in-out infinite; }
+  </style>
 </head>
-<body>
+<body class="font-sans bg-white text-slate-900 antialiased">
 
-  <!-- ========== HEADER ========== -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="logo">
-        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="#11567F"/>
-          <rect x="6" y="20" width="4" height="6" rx="1" fill="#29B5E8"/>
-          <rect x="12" y="14" width="4" height="12" rx="1" fill="#29B5E8" opacity="0.7"/>
-          <rect x="18" y="8"  width="4" height="18" rx="1" fill="#00C7C7"/>
-          <path d="M8 12 L14 8 L20 10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
-        </svg>
-        <span class="logo-text">CoverageAnalyst for dbt</span>
-      </div>
-      <nav class="nav">
-        <a href="#features"     data-i18n="nav_features">Features</a>
-        <a href="#how-it-works" data-i18n="nav_how">How it works</a>
-        <a href="#api"          data-i18n="nav_api">API</a>
-        <button class="lang-toggle" id="langToggle" onclick="toggleLang()">日本語</button>
-        <a href="#get-started"  class="btn btn-primary" data-i18n="nav_cta">Get Started</a>
+  <header class="sticky top-0 z-50 bg-[#0A3B5C]/95 backdrop-blur border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <!-- ロゴ画像プレースホルダー: /assets/img/roughstep-logo.svg に差し替えてください -->
+        <div class="logo-placeholder w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
+        <span class="text-white font-bold text-xl tracking-tight">RoughStep</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="#products" class="text-slate-300 hover:text-[#29B5E8] transition-colors">Products</a>
+        <a href="#about"    class="text-slate-300 hover:text-[#29B5E8] transition-colors">About</a>
+        <a href="/privacy/" class="text-slate-300 hover:text-[#29B5E8] transition-colors">Privacy</a>
       </nav>
+      <button id="mobileMenuBtn" class="md:hidden text-slate-300 hover:text-white" aria-label="メニュー">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-[#0A3B5C] border-t border-white/10 px-6 py-4 space-y-3">
+      <a href="#products" class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">Products</a>
+      <a href="#about"    class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">About</a>
+      <a href="/privacy/" class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">Privacy</a>
     </div>
   </header>
 
-  <!-- ========== HERO ========== -->
-  <section class="hero">
-    <div class="container hero-inner">
-      <div class="hero-badge" data-i18n="hero_badge">Snowflake Native App · Beta</div>
-      <h1 class="hero-title">
-        <span data-i18n="hero_title1">SQL Branch Coverage</span><br />
-        <span class="gradient-text" data-i18n="hero_title2">for your dbt Models</span>
+  <section class="hero-bg text-white">
+    <div class="max-w-6xl mx-auto px-6 py-24 md:py-36 text-center">
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm text-slate-300 mb-8">
+        <span class="w-2 h-2 rounded-full bg-[#00C7C7] inline-block"></span>
+        Snowflake Native Apps &middot; Built in Japan
+      </div>
+      <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+        Optimize your<br />
+        <span class="gradient-text">Snowflake Ecosystem</span>
       </h1>
-      <p class="hero-desc" data-i18n="hero_desc">
-        Measure C1 (branch) coverage of dbt SQL models — directly inside Snowflake.<br />
-        CI/CD ready via stored procedure. Zero infrastructure.
+      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+        RoughStep は、Snowflake を活用するデータチームの開発品質と生産性を高める<br class="hidden md:block" />
+        Native App を開発・提供する個人事業主のポータルです。
       </p>
-      <div class="hero-actions">
-        <span class="btn btn-primary btn-lg btn-disabled" data-i18n="hero_btn_market">
-          Coming Soon on Marketplace
-        </span>
-      </div>
-      <div class="hero-code">
-        <div class="code-header">
-          <span class="code-dot red"></span>
-          <span class="code-dot yellow"></span>
-          <span class="code-dot green"></span>
-          <span class="code-filename">snowsql (CI/CD)</span>
-        </div>
-        <pre class="code-block"><span class="c"># Call the stored procedure from your CI/CD pipeline</span>
-snowsql -q "CALL code.analyze_coverage('TARGET_DB', 'dbt_schema', '{}')"
-
-<span class="ok">[OK]</span>  fact_sales              <span class="num">100.0%</span>  (5/5 branches)
-<span class="ok">[OK]</span>  dim_customers           <span class="num"> 92.3%</span>  (12/13 branches)
-<span class="warn">[FAIL]</span> customer_segmentation   <span class="num"> 66.7%</span>  (2/3 branches)
-       └─ L12: segment = <span class="str">'New'</span>  ← uncovered branch
-
-<span class="ok">[OK]</span>  Overall: <span class="num">93.75%</span> coverage</pre>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== WHAT IS C1 ========== -->
-  <section class="section section-alt" id="coverage">
-    <div class="container">
-      <div class="section-label" data-i18n="c1_label">What is SQL Branch Coverage?</div>
-      <h2 class="section-title" data-i18n="c1_title">Every condition has two outcomes.<br />Are you testing both?</h2>
-      <div class="coverage-example">
-        <div class="coverage-sql">
-          <div class="code-header">
-            <span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span>
-            <span class="code-filename">customer_segmentation.sql</span>
-          </div>
-          <pre class="code-block"><span class="kw">SELECT</span>
-  customer_id,
-  <span class="kw">CASE</span>
-    <span class="kw">WHEN</span> total_purchases <span class="op">&gt;</span> <span class="num">10</span>  <span class="kw">THEN</span> <span class="str">'VIP'</span>     <span class="covered">✓ True</span>
-    <span class="kw">WHEN</span> total_purchases <span class="op">&gt;</span>  <span class="num">3</span>  <span class="kw">THEN</span> <span class="str">'Regular'</span> <span class="covered">✓ True</span>
-    <span class="kw">ELSE</span>                           <span class="str">'New'</span>      <span class="uncovered">✗ never reached</span>
-  <span class="kw">END</span> <span class="kw">AS</span> segment
-<span class="kw">FROM</span> customers
-<span class="kw">WHERE</span> status <span class="op">=</span> <span class="str">'active'</span>
-  <span class="kw">AND</span> created_at <span class="op">&gt;=</span> <span class="str">'2023-01-01'</span>
-  <span class="c">-- ↑ WHERE clause as a whole: True ✓ | False ✗</span></pre>
-        </div>
-        <div class="coverage-stats">
-          <div class="stat-card">
-            <div class="stat-value">60%</div>
-            <div class="stat-label" data-i18n="stat_coverage">Branch Coverage</div>
-          </div>
-          <div class="stat-card stat-card-warn">
-            <div class="stat-value">2</div>
-            <div class="stat-label" data-i18n="stat_uncovered">Uncovered Branches</div>
-          </div>
-          <div class="coverage-note">
-            <strong data-i18n="c1_note_title">C1 Coverage rule:</strong>
-            <p data-i18n="c1_note_body">Each condition (CASE WHEN, WHERE clause) must be evaluated as both True and False. AND/OR sub-conditions are not tracked individually — the full WHERE expression is one branch.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== FEATURES ========== -->
-  <section class="section" id="features">
-    <div class="container">
-      <div class="section-label" data-i18n="feat_label">Features</div>
-      <h2 class="section-title" data-i18n="feat_title">Everything you need for<br />data pipeline quality</h2>
-      <div class="features-grid">
-
-        <div class="feature-card">
-          <div class="feature-icon">🔬</div>
-          <h3 data-i18n="feat1_h">C1 Branch Coverage</h3>
-          <p data-i18n="feat1_p">Analyzes CASE WHEN, WHERE, and boolean conditions in dbt SQL. Measures True/False coverage per expression — not per sub-condition.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🏔️</div>
-          <h3 data-i18n="feat2_h">Native Snowflake App</h3>
-          <p data-i18n="feat2_p">Runs entirely inside your Snowflake account. No external services, no data leaves your environment. Deployed via Snowflake Marketplace.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🚀</div>
-          <h3 data-i18n="feat3_h">CI/CD Ready</h3>
-          <p data-i18n="feat3_p">Integrate coverage checks into any CI/CD pipeline by calling the Snowflake stored procedure. Returns structured JSON results for downstream processing.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3 data-i18n="feat4_h">Multiple Report Formats</h3>
-          <p data-i18n="feat4_p">JSON (machine-readable), JUnit XML (CI integration), Markdown (PR comments), and HTML (visual browser report).</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🖥️</div>
-          <h3 data-i18n="feat6_h">Streamlit UI</h3>
-          <p data-i18n="feat6_p">Built-in Streamlit dashboard for interactive analysis, run history, and HTML report download.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🌐</div>
-          <h3 data-i18n="feat7_h">i18n Support</h3>
-          <p data-i18n="feat7_p">Full Japanese and English support across UI, error messages, and report output.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">🔧</div>
-          <h3 data-i18n="feat8_h">Exclusion Rules</h3>
-          <p data-i18n="feat8_p">Fine-grained control with <code>.dbt-coverage.yml</code> to exclude models, schemas, or specific conditions from analysis.</p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== HOW IT WORKS ========== -->
-  <section class="section section-alt" id="how-it-works">
-    <div class="container">
-      <div class="section-label" data-i18n="how_label">How it works</div>
-      <h2 class="section-title" data-i18n="how_title">Three steps to coverage insights</h2>
-      <div class="steps">
-
-        <div class="step">
-          <div class="step-number">01</div>
-          <div class="step-content">
-            <h3 data-i18n="step1_h">Upload dbt Artifacts</h3>
-            <p data-i18n="step1_p">Run <code>dbt compile</code> and upload the <code>target/</code> directory as <code>target.zip</code> to your Snowflake Stage.</p>
-            <pre class="code-block-sm">dbt compile
-Compress-Archive -Path ./target -DestinationPath target.zip
-snowsql ... PUT file://target.zip @dbt_coverage_app.code.dbt_artifacts</pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-number">02</div>
-          <div class="step-content">
-            <h3 data-i18n="step2_h">Analyze via Stored Procedure</h3>
-            <p data-i18n="step2_p">Call the <code>analyze_coverage</code> stored procedure — from CI/CD script or the Streamlit UI.</p>
-            <pre class="code-block-sm">CALL code.analyze_coverage(
-  '@dbt_coverage_app.code.dbt_artifacts/target.zip',
-  '*',     -- model selector
-  'api',   -- caller
-  'en'     -- language
-);</pre>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-number">03</div>
-          <div class="step-content">
-            <h3 data-i18n="step3_h">Get Structured Results</h3>
-            <p data-i18n="step3_p">Receive a detailed JSON report. Export as JUnit XML for CI, Markdown for PR comments, or HTML for visual review.</p>
-            <pre class="code-block-sm">{
-  "status": "success",
-  "summary": {
-    "coverage_rate_percent": 93.75,
-    "models_passed": 5,
-    "models_failed": 1
-  },
-  "models": [ ... ]
-}</pre>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== CI/CD INTEGRATION ========== -->
-  <section class="section" id="cicd">
-    <div class="container">
-      <div class="section-label" data-i18n="cicd_label">CI/CD Integration</div>
-      <h2 class="section-title" data-i18n="cicd_title">Integrate into CI/CD via<br />Snowflake Stored Procedure</h2>
-      <div class="cicd-grid">
-        <div class="cicd-code">
-          <div class="tab-bar">
-            <button class="tab active" onclick="showTab('github', this)">GitHub Actions</button>
-            <button class="tab" onclick="showTab('powershell', this)">snowsql</button>
-          </div>
-          <div id="tab-github" class="tab-content active">
-            <pre class="code-block"><span class="kw">name:</span> dbt Coverage Analysis
-<span class="kw">on:</span> [push, pull_request]
-<span class="kw">jobs:</span>
-  <span class="kw">coverage:</span>
-    <span class="kw">runs-on:</span> ubuntu-latest
-    <span class="kw">steps:</span>
-      - <span class="kw">uses:</span> actions/checkout@v4
-      - <span class="kw">name:</span> Run coverage analysis
-        <span class="kw">run:</span> |
-          snowsql -q "CALL code.analyze_coverage( \
-            'TARGET_DB', 'dbt_schema', '{}')" \
-            -o output_format=json
-      - <span class="kw">uses:</span> actions/upload-artifact@v4
-        <span class="kw">with:</span>
-          <span class="kw">name:</span> coverage-reports
-          <span class="kw">path:</span> coverage_reports/</pre>
-          </div>
-          <div id="tab-powershell" class="tab-content">
-            <pre class="code-block"><span class="c"># Call the stored procedure directly with snowsql</span>
-snowsql -q "CALL code.analyze_coverage('TARGET_DB', 'dbt_schema', '{}')" `
-  -o output_format=json
-
-<span class="c"># Parse the JSON result and use exit code on your CI/CD side</span>
-<span class="c"># 0 = success, non-zero = error</span></pre>
-          </div>
-        </div>
-        <div class="cicd-features">
-          <ul class="check-list">
-            <li data-i18n="cicd_li1">✅ Call via snowsql from any CI/CD environment</li>
-            <li data-i18n="cicd_li2">✅ Returns structured JSON for downstream processing</li>
-            <li data-i18n="cicd_li3">✅ Markdown summary to GitHub Step Summary</li>
-            <li data-i18n="cicd_li4">✅ HTML report as build artifact</li>
-            <li data-i18n="cicd_li6">✅ Sample repository with GitHub Actions integration — coming soon</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== API ========== -->
-  <section class="section section-alt" id="api">
-    <div class="container">
-      <div class="section-label" data-i18n="api_label">Stored Procedure API</div>
-      <h2 class="section-title" data-i18n="api_title">Simple SQL interface</h2>
-      <p class="section-desc" data-i18n="api_desc">All functionality is exposed as Snowflake Stored Procedures — callable from any SQL client, BI tool, or script.</p>
-      <div class="api-cards">
-        <div class="api-card">
-          <div class="api-name"><code>code.analyze_coverage</code></div>
-          <div class="api-desc" data-i18n="api1_desc">Run branch coverage analysis on your dbt artifacts.</div>
-          <pre class="code-block-sm">CALL code.analyze_coverage(
-  stage_path,      -- '@.../target.zip'
-  model_selector,  -- '*' or 'fact_sales'
-  caller,          -- 'api' for CI/CD
-  lang             -- 'en' or 'ja'
-);</pre>
-        </div>
-        <div class="api-card">
-          <div class="api-name"><code>code.list_history</code></div>
-          <div class="api-desc" data-i18n="api2_desc">Retrieve recent analysis run history.</div>
-          <pre class="code-block-sm">CALL code.list_history(20);
--- Returns last 20 runs with
--- coverage rates, timestamps,
--- model counts, and status.</pre>
-        </div>
-        <div class="api-card">
-          <div class="api-name"><code>code.generate_html_report</code></div>
-          <div class="api-desc" data-i18n="api3_desc">Generate an HTML report from analysis results.</div>
-          <pre class="code-block-sm">CALL code.generate_html_report(
-  result_json,  -- from analyze_coverage
-  lang          -- 'en' or 'ja'
-);
--- Returns full HTML string</pre>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== CTA ========== -->
-  <section class="section cta-section" id="get-started">
-    <div class="container cta-inner">
-      <h2 class="cta-title" data-i18n="cta_title">Ready to measure your SQL coverage?</h2>
-      <p class="cta-desc" data-i18n="cta_desc">Snowflake Marketplace 公開準備中。外部インフラ不要。</p>
-      <div class="cta-actions">
-        <span class="btn btn-white btn-lg btn-disabled" data-i18n="cta_btn1">
-          Coming Soon on Marketplace
-        </span>
-        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/api-reference.md" class="btn btn-outline-white btn-lg" data-i18n="cta_btn2">
-          View Documentation
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#products" class="inline-flex items-center justify-center gap-2 bg-[#29B5E8] hover:bg-[#29B5E8]/80 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+          製品を見る
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </a>
+        <a href="#about" class="inline-flex items-center justify-center gap-2 border border-white/30 hover:border-[#29B5E8] text-slate-200 hover:text-[#29B5E8] font-semibold px-6 py-3 rounded-lg transition-colors">
+          RoughStep について
         </a>
       </div>
-      <div class="cta-note" data-i18n="cta_note">Beta · Free to use · Apache 2.0</div>
     </div>
   </section>
 
-  <!-- ========== FOOTER ========== -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div class="footer-logo">
-        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="#11567F"/>
-          <rect x="6" y="20" width="4" height="6" rx="1" fill="#29B5E8"/>
-          <rect x="12" y="14" width="4" height="12" rx="1" fill="#29B5E8" opacity="0.7"/>
-          <rect x="18" y="8"  width="4" height="18" rx="1" fill="#00C7C7"/>
-        </svg>
-        <span>CoverageAnalyst for dbt</span>
+  <section class="bg-slate-50 border-y border-slate-200">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">🏔️</div>
+          <h3 class="font-bold text-slate-800">Snowflake ネイティブ</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">すべての製品は Snowflake アカウント内で完結。データは一切外部に出ません。</p>
+        </div>
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">⚡</div>
+          <h3 class="font-bold text-slate-800">アジャイル開発支援</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">CI/CD パイプラインへのシームレスな統合。開発サイクルを止めない品質チェック。</p>
+        </div>
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">🌐</div>
+          <h3 class="font-bold text-slate-800">日英バイリンガル対応</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">UI・ドキュメント・エラーメッセージをすべて日本語・英語でサポート。</p>
+        </div>
       </div>
-      <nav class="footer-nav">
-        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/api-reference.md" data-i18n="foot_api">API Reference</a>
-        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/changelog.md" data-i18n="foot_changelog">Changelog</a>
-        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/privacy.md" data-i18n="foot_privacy">Privacy</a>
-        <a href="LICENSE" data-i18n="foot_license">License</a>
-      </nav>
-      <p class="footer-copy">© 2024 CoverageAnalyst for dbt Contributors. Apache 2.0.</p>
+    </div>
+  </section>
+
+  <section class="py-24 px-6" id="products">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="text-[#11567F] font-semibold text-sm uppercase tracking-widest mb-3">Products</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Snowflake Marketplace で提供する製品</h2>
+        <p class="text-slate-500 mt-4 max-w-xl mx-auto">現在ベータ版として開発中。Snowflake Marketplace から直接インストールできます。</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <article class="product-card bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div class="bg-gradient-to-br from-[#0A3B5C] to-[#11567F] p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center text-xl">🔬</div>
+              <span class="bg-[#00C7C7]/20 text-[#00C7C7] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#00C7C7]/30">Beta</span>
+            </div>
+            <h3 class="text-white font-bold text-xl leading-snug">CoverageAnalyst<br/>for dbt</h3>
+          </div>
+          <div class="p-6 flex flex-col gap-4">
+            <p class="text-slate-600 text-sm leading-relaxed">
+              dbt SQL モデルの C1（分岐）カバレッジを Snowflake 上で計測。
+              CI/CD パイプラインにストアドプロシージャ経由で統合できます。
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">dbt</span>
+              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">SQL Coverage</span>
+              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">CI/CD</span>
+              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">Streamlit UI</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-auto">
+              <a href="/products/dbt-coverage/" class="inline-flex items-center gap-1.5 text-[#11567F] hover:text-[#29B5E8] font-semibold text-sm transition-colors">
+                詳細を見る
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+              <span class="text-slate-400 text-xs">Marketplace 公開予定</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="product-card bg-slate-50 rounded-2xl border border-dashed border-slate-300 overflow-hidden">
+          <div class="p-6 h-full flex flex-col items-center justify-center text-center gap-3 min-h-[280px]">
+            <div class="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center text-2xl text-slate-400">+</div>
+            <p class="text-slate-500 font-medium text-sm">次の製品を開発中</p>
+            <p class="text-slate-400 text-xs max-w-xs">Snowflake エコシステムを最適化する新しいツールをリリース予定です。</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#0A3B5C] text-white py-24 px-6" id="about">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="text-[#29B5E8] font-semibold text-sm uppercase tracking-widest mb-4">About RoughStep</p>
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">
+            データエンジニアリングの<br />
+            <span class="gradient-text">課題に向き合う</span>
+          </h2>
+          <p class="text-slate-300 leading-relaxed mb-6">
+            RoughStep は、Snowflake を日常的に使うデータエンジニアとして感じた
+            「あったら便利なのに」を製品にする個人事業主です。
+            Snowflake Native App として開発することで、データの安全性を守りながら
+            チームの開発品質を高めるツールを提供します。
+          </p>
+          <p class="text-slate-300 leading-relaxed">
+            大企業向けの重厚なプラットフォームではなく、
+            小さく始めてすぐ価値を感じられる、アジャイルな開発チームのための製品を目指しています。
+          </p>
+        </div>
+        <div class="space-y-5">
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🎯</div>
+            <div>
+              <h4 class="font-semibold text-white mb-1">データ品質をコードレビューの一部に</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">SQL の分岐カバレッジを CI/CD に組み込み、データパイプラインのリグレッションを早期検出。</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🔒</div>
+            <div>
+              <h4 class="font-semibold text-white mb-1">データは Snowflake の外に出さない</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">すべての処理をお客様の Snowflake アカウント内で完結。セキュリティとコンプライアンスを損なわない設計。</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🚀</div>
+            <div>
+              <h4 class="font-semibold text-white mb-1">Marketplace で即インストール</h4>
+              <p class="text-slate-400 text-sm leading-relaxed">インフラ構築不要。Snowflake Marketplace から数クリックで導入し、すぐに使い始められます。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-slate-900 text-slate-400 py-12 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <!-- ロゴ画像プレースホルダー: /assets/img/roughstep-logo.svg に差し替えてください -->
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
+          <span class="text-white font-semibold text-lg">RoughStep</span>
+        </div>
+        <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+          <a href="/products/dbt-coverage/" class="hover:text-[#29B5E8] transition-colors">CoverageAnalyst for dbt</a>
+          <a href="/privacy/"               class="hover:text-[#29B5E8] transition-colors">Privacy Policy</a>
+          <a href="mailto:contact@roughstep.dev" class="hover:text-[#29B5E8] transition-colors">Contact</a>
+        </nav>
+        <p class="text-xs text-slate-500 text-center md:text-right">
+          &copy; 2024&ndash;2026 RoughStep. All rights reserved.
+        </p>
+      </div>
     </div>
   </footer>
 
   <script>
-    /* ── Tab switcher ── */
-    function showTab(name, btn) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    /* ── i18n ── */
-    const translations = {
-      en: {
-        nav_features: 'Features',
-        nav_how: 'How it works',
-        nav_api: 'API',
-        nav_cta: 'Get Started',
-        hero_badge: 'Snowflake Native App · Beta',
-        hero_title1: 'SQL Branch Coverage',
-        hero_title2: 'for your dbt Models',
-        hero_desc: 'Measure C1 (branch) coverage of dbt SQL models — directly inside Snowflake.<br />CI/CD ready via stored procedure. Zero infrastructure.',
-        hero_btn_market: 'Coming Soon on Marketplace',
-        c1_label: 'What is SQL Branch Coverage?',
-        c1_title: 'Every condition has two outcomes.<br />Are you testing both?',
-        stat_coverage: 'Branch Coverage',
-        stat_uncovered: 'Uncovered Branches',
-        c1_note_title: 'C1 Coverage rule:',
-        c1_note_body: 'Each condition (CASE WHEN, WHERE clause) must be evaluated as both True and False. AND/OR sub-conditions are not tracked individually — the full WHERE expression is one branch.',
-        feat_label: 'Features',
-        feat_title: 'Everything you need for<br />data pipeline quality',
-        feat1_h: 'C1 Branch Coverage',
-        feat1_p: 'Analyzes CASE WHEN, WHERE, and boolean conditions in dbt SQL. Measures True/False coverage per expression — not per sub-condition.',
-        feat2_h: 'Native Snowflake App',
-        feat2_p: 'Runs entirely inside your Snowflake account. No external services, no data leaves your environment. Deployed via Snowflake Marketplace.',
-        feat3_h: 'CI/CD Ready',
-        feat3_p: 'Integrate coverage checks into any CI/CD pipeline by calling the Snowflake stored procedure. Returns structured JSON results for downstream processing.',
-        feat4_h: 'Multiple Report Formats',
-        feat4_p: 'JSON (machine-readable), JUnit XML (CI integration), Markdown (PR comments), and HTML (visual browser report).',
-        feat6_h: 'Streamlit UI',
-        feat6_p: 'Built-in Streamlit dashboard for interactive analysis, run history, and HTML report download.',
-        feat7_h: 'i18n Support',
-        feat7_p: 'Full Japanese and English support across UI, error messages, and report output.',
-        feat8_h: 'Exclusion Rules',
-        feat8_p: 'Fine-grained control with .dbt-coverage.yml to exclude models, schemas, or specific conditions from analysis.',
-        how_label: 'How it works',
-        how_title: 'Three steps to coverage insights',
-        step1_h: 'Upload dbt Artifacts',
-        step1_p: 'Run <code>dbt compile</code> and upload the <code>target/</code> directory as <code>target.zip</code> to your Snowflake Stage.',
-        step2_h: 'Analyze via Stored Procedure',
-        step2_p: 'Call the <code>analyze_coverage</code> stored procedure — from CI/CD script or the Streamlit UI.',
-        step3_h: 'Get Structured Results',
-        step3_p: 'Receive a detailed JSON report. Export as JUnit XML for CI, Markdown for PR comments, or HTML for visual review.',
-        cicd_label: 'CI/CD Integration',
-        cicd_title: 'Integrate into CI/CD via<br />Snowflake Stored Procedure',
-        cicd_li1: '✅ Call via snowsql from any CI/CD environment',
-        cicd_li2: '✅ Returns structured JSON for downstream processing',
-        cicd_li3: '✅ Markdown summary to GitHub Step Summary',
-        cicd_li4: '✅ HTML report as build artifact',
-        cicd_li6: '✅ Sample repository with GitHub Actions integration — coming soon',
-        api_label: 'Stored Procedure API',
-        api_title: 'Simple SQL interface',
-        api_desc: 'All functionality is exposed as Snowflake Stored Procedures — callable from any SQL client, BI tool, or script.',
-        api1_desc: 'Run branch coverage analysis on your dbt artifacts.',
-        api2_desc: 'Retrieve recent analysis run history.',
-        api3_desc: 'Generate an HTML report from analysis results.',
-        cta_title: 'Ready to measure your SQL coverage?',
-        cta_desc: 'Coming soon on Snowflake Marketplace. No external infrastructure required.',
-        cta_btn1: 'Coming Soon on Marketplace',
-        cta_btn2: 'View Documentation',
-        cta_note: 'Beta · Free to use · Apache 2.0',
-        foot_api: 'API Reference',
-        foot_changelog: 'Changelog',
-        foot_privacy: 'Privacy',
-        foot_license: 'License',
-      },
-      ja: {
-        nav_features: '機能',
-        nav_how: '使い方',
-        nav_api: 'API',
-        nav_cta: '始める',
-        hero_badge: 'Snowflake Native App · ベータ版',
-        hero_title1: 'SQL 分岐カバレッジ測定',
-        hero_title2: 'dbt モデルのために',
-        hero_desc: 'dbt SQL モデルの C1（分岐）カバレッジを Snowflake 上で直接計測。<br />ストアドプロシージャ経由で CI/CD に組み込み可能。外部インフラ不要。',
-        hero_btn_market: 'Marketplace 公開準備中',
-        c1_label: 'SQL 分岐カバレッジとは？',
-        c1_title: 'すべての条件に True と False がある。<br />両方テストできていますか？',
-        stat_coverage: '分岐カバレッジ',
-        stat_uncovered: '未カバーの分岐',
-        c1_note_title: 'C1 カバレッジのルール:',
-        c1_note_body: 'CASE WHEN や WHERE 句の各条件が True・False の両方を経由したかを測定します。AND/OR のサブ条件は個別にトラッキングしません — WHERE 全体で 1 分岐です。',
-        feat_label: '機能',
-        feat_title: 'データパイプラインの品質を<br />支えるすべての機能',
-        feat1_h: 'C1 分岐カバレッジ',
-        feat1_p: 'dbt SQL の CASE WHEN・WHERE・boolean 条件を解析。条件式単位（サブ条件単位ではなく）で True/False カバレッジを計測します。',
-        feat2_h: 'Snowflake Native App',
-        feat2_p: 'Snowflake アカウント内で完結。外部サービス不要、データは環境外に出ません。Snowflake Marketplace からインストール。',
-        feat3_h: 'CI/CD 対応',
-        feat3_p: 'Snowflake ストアドプロシージャを呼び出すことで、あらゆる CI/CD パイプラインにカバレッジチェックを組み込めます。構造化 JSON で結果を返します。',
-        feat4_h: '多彩なレポート形式',
-        feat4_p: 'JSON（機械可読）・JUnit XML（CI 統合）・Markdown（PR コメント）・HTML（ブラウザ確認）に対応。',
-        feat6_h: 'Streamlit UI',
-        feat6_p: '組み込みの Streamlit ダッシュボードでインタラクティブに分析・履歴確認・HTML レポートのダウンロードが可能。',
-        feat7_h: '多言語対応（i18n）',
-        feat7_p: 'UI・エラーメッセージ・レポート出力のすべてで日本語・英語に対応。',
-        feat8_h: '除外設定',
-        feat8_p: '.dbt-coverage.yml でモデル・スキーマ・特定の条件をカバレッジ計測から除外できます。',
-        how_label: '使い方',
-        how_title: '3 ステップでカバレッジを可視化',
-        step1_h: 'dbt アーティファクトをアップロード',
-        step1_p: '<code>dbt compile</code> を実行し、<code>target/</code> フォルダを <code>target.zip</code> として Snowflake Stage にアップロードします。',
-        step2_h: 'ストアドプロシージャで分析',
-        step2_p: 'CI/CD スクリプトまたは Streamlit UI から <code>analyze_coverage</code> SP を呼び出します。',
-        step3_h: '構造化されたレポートを取得',
-        step3_p: '詳細な JSON レポートを受け取ります。JUnit XML・Markdown・HTML 形式でエクスポート可能。',
-        cicd_label: 'CI/CD 統合',
-        cicd_title: 'ストアドプロシージャ経由で<br />CI/CD に組み込む',
-        cicd_li1: '✅ snowsql 経由でどの CI/CD 環境からも呼び出し可能',
-        cicd_li2: '✅ 構造化 JSON を返却、ダウンストリームで自由に処理',
-        cicd_li3: '✅ Markdown サマリーを GitHub Step Summary に出力',
-        cicd_li4: '✅ HTML レポートをビルドアーティファクトとして保存',
-        cicd_li6: '✅ GitHub Actions を使ったサンプルリポジトリを公開予定',
-        api_label: 'ストアドプロシージャ API',
-        api_title: 'シンプルな SQL インターフェース',
-        api_desc: 'すべての機能をストアドプロシージャで公開。どの SQL クライアント・BI ツール・スクリプトからも呼び出せます。',
-        api1_desc: 'dbt アーティファクトの分岐カバレッジ分析を実行します。',
-        api2_desc: '直近の分析実行履歴を取得します。',
-        api3_desc: '分析結果から HTML レポートを生成します。',
-        cta_title: 'SQL カバレッジの計測を始めましょう',
-        cta_desc: 'Snowflake Marketplace 公開準備中。外部インフラ不要。',
-        cta_btn1: 'Marketplace 公開準備中',
-        cta_btn2: 'ドキュメントを見る',
-        cta_note: 'ベータ版 · 無償利用可 · Apache 2.0',
-        foot_api: 'API リファレンス',
-        foot_changelog: '更新履歴',
-        foot_privacy: 'プライバシー',
-        foot_license: 'ライセンス',
-      }
-    };
-
-    let currentLang = 'en';
-
-    function applyLang(lang) {
-      const t = translations[lang];
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (t[key] !== undefined) {
-          el.innerHTML = t[key];
-        }
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+    document.querySelectorAll('#mobileMenu a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('mobileMenu').classList.add('hidden');
       });
-      document.documentElement.lang = lang;
-      document.getElementById('langToggle').textContent = lang === 'en' ? '日本語' : 'English';
-      currentLang = lang;
-    }
-
-    function toggleLang() {
-      applyLang(currentLang === 'en' ? 'ja' : 'en');
-    }
+    });
   </script>
 </body>
 </html>

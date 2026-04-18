@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoverageAnalyst for dbt | RoughStep</title>
+  <meta name="description" content="Measure and visualize SQL branch coverage (C1 Coverage) for dbt models on Snowflake. Integrated into CI/CD via Snowflake stored procedures." />
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="back-to-home" style="color:var(--snow-blue);text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:4px;margin-right:16px;">← RoughStep</a><div class="logo">
+        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="#11567F"/>
+          <rect x="6" y="20" width="4" height="6" rx="1" fill="#29B5E8"/>
+          <rect x="12" y="14" width="4" height="12" rx="1" fill="#29B5E8" opacity="0.7"/>
+          <rect x="18" y="8"  width="4" height="18" rx="1" fill="#00C7C7"/>
+          <path d="M8 12 L14 8 L20 10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+        </svg>
+        <span class="logo-text">CoverageAnalyst for dbt</span>
+      </div>
+      <nav class="nav">
+        <a href="#features"     data-i18n="nav_features">Features</a>
+        <a href="#how-it-works" data-i18n="nav_how">How it works</a>
+        <a href="#api"          data-i18n="nav_api">API</a>
+        <button class="lang-toggle" id="langToggle" onclick="toggleLang()">日本語</button>
+        <a href="#get-started"  class="btn btn-primary" data-i18n="nav_cta">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-badge" data-i18n="hero_badge">Snowflake Native App · Beta</div>
+      <h1 class="hero-title">
+        <span data-i18n="hero_title1">SQL Branch Coverage</span><br />
+        <span class="gradient-text" data-i18n="hero_title2">for your dbt Models</span>
+      </h1>
+      <p class="hero-desc" data-i18n="hero_desc">
+        Measure C1 (branch) coverage of dbt SQL models — directly inside Snowflake.<br />
+        CI/CD ready via stored procedure. Zero infrastructure.
+      </p>
+      <div class="hero-actions">
+        <span class="btn btn-primary btn-lg btn-disabled" data-i18n="hero_btn_market">
+          Coming Soon on Marketplace
+        </span>
+      </div>
+      <div class="hero-code">
+        <div class="code-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot yellow"></span>
+          <span class="code-dot green"></span>
+          <span class="code-filename">snowsql (CI/CD)</span>
+        </div>
+        <pre class="code-block"><span class="c"># Call the stored procedure from your CI/CD pipeline</span>
+snowsql -q "CALL code.analyze_coverage('TARGET_DB', 'dbt_schema', '{}')"
+
+<span class="ok">[OK]</span>  fact_sales              <span class="num">100.0%</span>  (5/5 branches)
+<span class="ok">[OK]</span>  dim_customers           <span class="num"> 92.3%</span>  (12/13 branches)
+<span class="warn">[FAIL]</span> customer_segmentation   <span class="num"> 66.7%</span>  (2/3 branches)
+       └─ L12: segment = <span class="str">'New'</span>  ← uncovered branch
+
+<span class="ok">[OK]</span>  Overall: <span class="num">93.75%</span> coverage</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== WHAT IS C1 ========== -->
+  <section class="section section-alt" id="coverage">
+    <div class="container">
+      <div class="section-label" data-i18n="c1_label">What is SQL Branch Coverage?</div>
+      <h2 class="section-title" data-i18n="c1_title">Every condition has two outcomes.<br />Are you testing both?</h2>
+      <div class="coverage-example">
+        <div class="coverage-sql">
+          <div class="code-header">
+            <span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span>
+            <span class="code-filename">customer_segmentation.sql</span>
+          </div>
+          <pre class="code-block"><span class="kw">SELECT</span>
+  customer_id,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> total_purchases <span class="op">&gt;</span> <span class="num">10</span>  <span class="kw">THEN</span> <span class="str">'VIP'</span>     <span class="covered">✓ True</span>
+    <span class="kw">WHEN</span> total_purchases <span class="op">&gt;</span>  <span class="num">3</span>  <span class="kw">THEN</span> <span class="str">'Regular'</span> <span class="covered">✓ True</span>
+    <span class="kw">ELSE</span>                           <span class="str">'New'</span>      <span class="uncovered">✗ never reached</span>
+  <span class="kw">END</span> <span class="kw">AS</span> segment
+<span class="kw">FROM</span> customers
+<span class="kw">WHERE</span> status <span class="op">=</span> <span class="str">'active'</span>
+  <span class="kw">AND</span> created_at <span class="op">&gt;=</span> <span class="str">'2023-01-01'</span>
+  <span class="c">-- ↑ WHERE clause as a whole: True ✓ | False ✗</span></pre>
+        </div>
+        <div class="coverage-stats">
+          <div class="stat-card">
+            <div class="stat-value">60%</div>
+            <div class="stat-label" data-i18n="stat_coverage">Branch Coverage</div>
+          </div>
+          <div class="stat-card stat-card-warn">
+            <div class="stat-value">2</div>
+            <div class="stat-label" data-i18n="stat_uncovered">Uncovered Branches</div>
+          </div>
+          <div class="coverage-note">
+            <strong data-i18n="c1_note_title">C1 Coverage rule:</strong>
+            <p data-i18n="c1_note_body">Each condition (CASE WHEN, WHERE clause) must be evaluated as both True and False. AND/OR sub-conditions are not tracked individually — the full WHERE expression is one branch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURES ========== -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-label" data-i18n="feat_label">Features</div>
+      <h2 class="section-title" data-i18n="feat_title">Everything you need for<br />data pipeline quality</h2>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">🔬</div>
+          <h3 data-i18n="feat1_h">C1 Branch Coverage</h3>
+          <p data-i18n="feat1_p">Analyzes CASE WHEN, WHERE, and boolean conditions in dbt SQL. Measures True/False coverage per expression — not per sub-condition.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🏔️</div>
+          <h3 data-i18n="feat2_h">Native Snowflake App</h3>
+          <p data-i18n="feat2_p">Runs entirely inside your Snowflake account. No external services, no data leaves your environment. Deployed via Snowflake Marketplace.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3 data-i18n="feat3_h">CI/CD Ready</h3>
+          <p data-i18n="feat3_p">Integrate coverage checks into any CI/CD pipeline by calling the Snowflake stored procedure. Returns structured JSON results for downstream processing.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 data-i18n="feat4_h">Multiple Report Formats</h3>
+          <p data-i18n="feat4_p">JSON (machine-readable), JUnit XML (CI integration), Markdown (PR comments), and HTML (visual browser report).</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🖥️</div>
+          <h3 data-i18n="feat6_h">Streamlit UI</h3>
+          <p data-i18n="feat6_p">Built-in Streamlit dashboard for interactive analysis, run history, and HTML report download.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 data-i18n="feat7_h">i18n Support</h3>
+          <p data-i18n="feat7_p">Full Japanese and English support across UI, error messages, and report output.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔧</div>
+          <h3 data-i18n="feat8_h">Exclusion Rules</h3>
+          <p data-i18n="feat8_p">Fine-grained control with <code>.dbt-coverage.yml</code> to exclude models, schemas, or specific conditions from analysis.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section class="section section-alt" id="how-it-works">
+    <div class="container">
+      <div class="section-label" data-i18n="how_label">How it works</div>
+      <h2 class="section-title" data-i18n="how_title">Three steps to coverage insights</h2>
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h3 data-i18n="step1_h">Upload dbt Artifacts</h3>
+            <p data-i18n="step1_p">Run <code>dbt compile</code> and upload the <code>target/</code> directory as <code>target.zip</code> to your Snowflake Stage.</p>
+            <pre class="code-block-sm">dbt compile
+Compress-Archive -Path ./target -DestinationPath target.zip
+snowsql ... PUT file://target.zip @dbt_coverage_app.code.dbt_artifacts</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h3 data-i18n="step2_h">Analyze via Stored Procedure</h3>
+            <p data-i18n="step2_p">Call the <code>analyze_coverage</code> stored procedure — from CI/CD script or the Streamlit UI.</p>
+            <pre class="code-block-sm">CALL code.analyze_coverage(
+  '@dbt_coverage_app.code.dbt_artifacts/target.zip',
+  '*',     -- model selector
+  'api',   -- caller
+  'en'     -- language
+);</pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h3 data-i18n="step3_h">Get Structured Results</h3>
+            <p data-i18n="step3_p">Receive a detailed JSON report. Export as JUnit XML for CI, Markdown for PR comments, or HTML for visual review.</p>
+            <pre class="code-block-sm">{
+  "status": "success",
+  "summary": {
+    "coverage_rate_percent": 93.75,
+    "models_passed": 5,
+    "models_failed": 1
+  },
+  "models": [ ... ]
+}</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CI/CD INTEGRATION ========== -->
+  <section class="section" id="cicd">
+    <div class="container">
+      <div class="section-label" data-i18n="cicd_label">CI/CD Integration</div>
+      <h2 class="section-title" data-i18n="cicd_title">Integrate into CI/CD via<br />Snowflake Stored Procedure</h2>
+      <div class="cicd-grid">
+        <div class="cicd-code">
+          <div class="tab-bar">
+            <button class="tab active" onclick="showTab('github', this)">GitHub Actions</button>
+            <button class="tab" onclick="showTab('powershell', this)">snowsql</button>
+          </div>
+          <div id="tab-github" class="tab-content active">
+            <pre class="code-block"><span class="kw">name:</span> dbt Coverage Analysis
+<span class="kw">on:</span> [push, pull_request]
+<span class="kw">jobs:</span>
+  <span class="kw">coverage:</span>
+    <span class="kw">runs-on:</span> ubuntu-latest
+    <span class="kw">steps:</span>
+      - <span class="kw">uses:</span> actions/checkout@v4
+      - <span class="kw">name:</span> Run coverage analysis
+        <span class="kw">run:</span> |
+          snowsql -q "CALL code.analyze_coverage( \
+            'TARGET_DB', 'dbt_schema', '{}')" \
+            -o output_format=json
+      - <span class="kw">uses:</span> actions/upload-artifact@v4
+        <span class="kw">with:</span>
+          <span class="kw">name:</span> coverage-reports
+          <span class="kw">path:</span> coverage_reports/</pre>
+          </div>
+          <div id="tab-powershell" class="tab-content">
+            <pre class="code-block"><span class="c"># Call the stored procedure directly with snowsql</span>
+snowsql -q "CALL code.analyze_coverage('TARGET_DB', 'dbt_schema', '{}')" `
+  -o output_format=json
+
+<span class="c"># Parse the JSON result and use exit code on your CI/CD side</span>
+<span class="c"># 0 = success, non-zero = error</span></pre>
+          </div>
+        </div>
+        <div class="cicd-features">
+          <ul class="check-list">
+            <li data-i18n="cicd_li1">✅ Call via snowsql from any CI/CD environment</li>
+            <li data-i18n="cicd_li2">✅ Returns structured JSON for downstream processing</li>
+            <li data-i18n="cicd_li3">✅ Markdown summary to GitHub Step Summary</li>
+            <li data-i18n="cicd_li4">✅ HTML report as build artifact</li>
+            <li data-i18n="cicd_li6">✅ Sample repository with GitHub Actions integration — coming soon</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== API ========== -->
+  <section class="section section-alt" id="api">
+    <div class="container">
+      <div class="section-label" data-i18n="api_label">Stored Procedure API</div>
+      <h2 class="section-title" data-i18n="api_title">Simple SQL interface</h2>
+      <p class="section-desc" data-i18n="api_desc">All functionality is exposed as Snowflake Stored Procedures — callable from any SQL client, BI tool, or script.</p>
+      <div class="api-cards">
+        <div class="api-card">
+          <div class="api-name"><code>code.analyze_coverage</code></div>
+          <div class="api-desc" data-i18n="api1_desc">Run branch coverage analysis on your dbt artifacts.</div>
+          <pre class="code-block-sm">CALL code.analyze_coverage(
+  stage_path,      -- '@.../target.zip'
+  model_selector,  -- '*' or 'fact_sales'
+  caller,          -- 'api' for CI/CD
+  lang             -- 'en' or 'ja'
+);</pre>
+        </div>
+        <div class="api-card">
+          <div class="api-name"><code>code.list_history</code></div>
+          <div class="api-desc" data-i18n="api2_desc">Retrieve recent analysis run history.</div>
+          <pre class="code-block-sm">CALL code.list_history(20);
+-- Returns last 20 runs with
+-- coverage rates, timestamps,
+-- model counts, and status.</pre>
+        </div>
+        <div class="api-card">
+          <div class="api-name"><code>code.generate_html_report</code></div>
+          <div class="api-desc" data-i18n="api3_desc">Generate an HTML report from analysis results.</div>
+          <pre class="code-block-sm">CALL code.generate_html_report(
+  result_json,  -- from analyze_coverage
+  lang          -- 'en' or 'ja'
+);
+-- Returns full HTML string</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="section cta-section" id="get-started">
+    <div class="container cta-inner">
+      <h2 class="cta-title" data-i18n="cta_title">Ready to measure your SQL coverage?</h2>
+      <p class="cta-desc" data-i18n="cta_desc">Snowflake Marketplace 公開準備中。外部インフラ不要。</p>
+      <div class="cta-actions">
+        <span class="btn btn-white btn-lg btn-disabled" data-i18n="cta_btn1">
+          Coming Soon on Marketplace
+        </span>
+        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/api-reference.md" class="btn btn-outline-white btn-lg" data-i18n="cta_btn2">
+          View Documentation
+        </a>
+      </div>
+      <div class="cta-note" data-i18n="cta_note">Beta · Free to use · Apache 2.0</div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="#11567F"/>
+          <rect x="6" y="20" width="4" height="6" rx="1" fill="#29B5E8"/>
+          <rect x="12" y="14" width="4" height="12" rx="1" fill="#29B5E8" opacity="0.7"/>
+          <rect x="18" y="8"  width="4" height="18" rx="1" fill="#00C7C7"/>
+        </svg>
+        <span>CoverageAnalyst for dbt</span>
+      </div>
+      <nav class="footer-nav">
+        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/api-reference.md" data-i18n="foot_api">API Reference</a>
+        <a href="https://github.com/koki-klm/coverage-analyst-for-dbt/blob/main/docs/changelog.md" data-i18n="foot_changelog">Changelog</a>
+        <a href="/privacy/" data-i18n="foot_privacy">Privacy</a>
+        <a href="LICENSE" data-i18n="foot_license">License</a>
+      </nav>
+      <p class="footer-copy">© 2024 CoverageAnalyst for dbt Contributors. Apache 2.0.</p>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Tab switcher ── */
+    function showTab(name, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* ── i18n ── */
+    const translations = {
+      en: {
+        nav_features: 'Features',
+        nav_how: 'How it works',
+        nav_api: 'API',
+        nav_cta: 'Get Started',
+        hero_badge: 'Snowflake Native App · Beta',
+        hero_title1: 'SQL Branch Coverage',
+        hero_title2: 'for your dbt Models',
+        hero_desc: 'Measure C1 (branch) coverage of dbt SQL models — directly inside Snowflake.<br />CI/CD ready via stored procedure. Zero infrastructure.',
+        hero_btn_market: 'Coming Soon on Marketplace',
+        c1_label: 'What is SQL Branch Coverage?',
+        c1_title: 'Every condition has two outcomes.<br />Are you testing both?',
+        stat_coverage: 'Branch Coverage',
+        stat_uncovered: 'Uncovered Branches',
+        c1_note_title: 'C1 Coverage rule:',
+        c1_note_body: 'Each condition (CASE WHEN, WHERE clause) must be evaluated as both True and False. AND/OR sub-conditions are not tracked individually — the full WHERE expression is one branch.',
+        feat_label: 'Features',
+        feat_title: 'Everything you need for<br />data pipeline quality',
+        feat1_h: 'C1 Branch Coverage',
+        feat1_p: 'Analyzes CASE WHEN, WHERE, and boolean conditions in dbt SQL. Measures True/False coverage per expression — not per sub-condition.',
+        feat2_h: 'Native Snowflake App',
+        feat2_p: 'Runs entirely inside your Snowflake account. No external services, no data leaves your environment. Deployed via Snowflake Marketplace.',
+        feat3_h: 'CI/CD Ready',
+        feat3_p: 'Integrate coverage checks into any CI/CD pipeline by calling the Snowflake stored procedure. Returns structured JSON results for downstream processing.',
+        feat4_h: 'Multiple Report Formats',
+        feat4_p: 'JSON (machine-readable), JUnit XML (CI integration), Markdown (PR comments), and HTML (visual browser report).',
+        feat6_h: 'Streamlit UI',
+        feat6_p: 'Built-in Streamlit dashboard for interactive analysis, run history, and HTML report download.',
+        feat7_h: 'i18n Support',
+        feat7_p: 'Full Japanese and English support across UI, error messages, and report output.',
+        feat8_h: 'Exclusion Rules',
+        feat8_p: 'Fine-grained control with .dbt-coverage.yml to exclude models, schemas, or specific conditions from analysis.',
+        how_label: 'How it works',
+        how_title: 'Three steps to coverage insights',
+        step1_h: 'Upload dbt Artifacts',
+        step1_p: 'Run <code>dbt compile</code> and upload the <code>target/</code> directory as <code>target.zip</code> to your Snowflake Stage.',
+        step2_h: 'Analyze via Stored Procedure',
+        step2_p: 'Call the <code>analyze_coverage</code> stored procedure — from CI/CD script or the Streamlit UI.',
+        step3_h: 'Get Structured Results',
+        step3_p: 'Receive a detailed JSON report. Export as JUnit XML for CI, Markdown for PR comments, or HTML for visual review.',
+        cicd_label: 'CI/CD Integration',
+        cicd_title: 'Integrate into CI/CD via<br />Snowflake Stored Procedure',
+        cicd_li1: '✅ Call via snowsql from any CI/CD environment',
+        cicd_li2: '✅ Returns structured JSON for downstream processing',
+        cicd_li3: '✅ Markdown summary to GitHub Step Summary',
+        cicd_li4: '✅ HTML report as build artifact',
+        cicd_li6: '✅ Sample repository with GitHub Actions integration — coming soon',
+        api_label: 'Stored Procedure API',
+        api_title: 'Simple SQL interface',
+        api_desc: 'All functionality is exposed as Snowflake Stored Procedures — callable from any SQL client, BI tool, or script.',
+        api1_desc: 'Run branch coverage analysis on your dbt artifacts.',
+        api2_desc: 'Retrieve recent analysis run history.',
+        api3_desc: 'Generate an HTML report from analysis results.',
+        cta_title: 'Ready to measure your SQL coverage?',
+        cta_desc: 'Coming soon on Snowflake Marketplace. No external infrastructure required.',
+        cta_btn1: 'Coming Soon on Marketplace',
+        cta_btn2: 'View Documentation',
+        cta_note: 'Beta · Free to use · Apache 2.0',
+        foot_api: 'API Reference',
+        foot_changelog: 'Changelog',
+        foot_privacy: 'Privacy',
+        foot_license: 'License',
+      },
+      ja: {
+        nav_features: '機能',
+        nav_how: '使い方',
+        nav_api: 'API',
+        nav_cta: '始める',
+        hero_badge: 'Snowflake Native App · ベータ版',
+        hero_title1: 'SQL 分岐カバレッジ測定',
+        hero_title2: 'dbt モデルのために',
+        hero_desc: 'dbt SQL モデルの C1（分岐）カバレッジを Snowflake 上で直接計測。<br />ストアドプロシージャ経由で CI/CD に組み込み可能。外部インフラ不要。',
+        hero_btn_market: 'Marketplace 公開準備中',
+        c1_label: 'SQL 分岐カバレッジとは？',
+        c1_title: 'すべての条件に True と False がある。<br />両方テストできていますか？',
+        stat_coverage: '分岐カバレッジ',
+        stat_uncovered: '未カバーの分岐',
+        c1_note_title: 'C1 カバレッジのルール:',
+        c1_note_body: 'CASE WHEN や WHERE 句の各条件が True・False の両方を経由したかを測定します。AND/OR のサブ条件は個別にトラッキングしません — WHERE 全体で 1 分岐です。',
+        feat_label: '機能',
+        feat_title: 'データパイプラインの品質を<br />支えるすべての機能',
+        feat1_h: 'C1 分岐カバレッジ',
+        feat1_p: 'dbt SQL の CASE WHEN・WHERE・boolean 条件を解析。条件式単位（サブ条件単位ではなく）で True/False カバレッジを計測します。',
+        feat2_h: 'Snowflake Native App',
+        feat2_p: 'Snowflake アカウント内で完結。外部サービス不要、データは環境外に出ません。Snowflake Marketplace からインストール。',
+        feat3_h: 'CI/CD 対応',
+        feat3_p: 'Snowflake ストアドプロシージャを呼び出すことで、あらゆる CI/CD パイプラインにカバレッジチェックを組み込めます。構造化 JSON で結果を返します。',
+        feat4_h: '多彩なレポート形式',
+        feat4_p: 'JSON（機械可読）・JUnit XML（CI 統合）・Markdown（PR コメント）・HTML（ブラウザ確認）に対応。',
+        feat6_h: 'Streamlit UI',
+        feat6_p: '組み込みの Streamlit ダッシュボードでインタラクティブに分析・履歴確認・HTML レポートのダウンロードが可能。',
+        feat7_h: '多言語対応（i18n）',
+        feat7_p: 'UI・エラーメッセージ・レポート出力のすべてで日本語・英語に対応。',
+        feat8_h: '除外設定',
+        feat8_p: '.dbt-coverage.yml でモデル・スキーマ・特定の条件をカバレッジ計測から除外できます。',
+        how_label: '使い方',
+        how_title: '3 ステップでカバレッジを可視化',
+        step1_h: 'dbt アーティファクトをアップロード',
+        step1_p: '<code>dbt compile</code> を実行し、<code>target/</code> フォルダを <code>target.zip</code> として Snowflake Stage にアップロードします。',
+        step2_h: 'ストアドプロシージャで分析',
+        step2_p: 'CI/CD スクリプトまたは Streamlit UI から <code>analyze_coverage</code> SP を呼び出します。',
+        step3_h: '構造化されたレポートを取得',
+        step3_p: '詳細な JSON レポートを受け取ります。JUnit XML・Markdown・HTML 形式でエクスポート可能。',
+        cicd_label: 'CI/CD 統合',
+        cicd_title: 'ストアドプロシージャ経由で<br />CI/CD に組み込む',
+        cicd_li1: '✅ snowsql 経由でどの CI/CD 環境からも呼び出し可能',
+        cicd_li2: '✅ 構造化 JSON を返却、ダウンストリームで自由に処理',
+        cicd_li3: '✅ Markdown サマリーを GitHub Step Summary に出力',
+        cicd_li4: '✅ HTML レポートをビルドアーティファクトとして保存',
+        cicd_li6: '✅ GitHub Actions を使ったサンプルリポジトリを公開予定',
+        api_label: 'ストアドプロシージャ API',
+        api_title: 'シンプルな SQL インターフェース',
+        api_desc: 'すべての機能をストアドプロシージャで公開。どの SQL クライアント・BI ツール・スクリプトからも呼び出せます。',
+        api1_desc: 'dbt アーティファクトの分岐カバレッジ分析を実行します。',
+        api2_desc: '直近の分析実行履歴を取得します。',
+        api3_desc: '分析結果から HTML レポートを生成します。',
+        cta_title: 'SQL カバレッジの計測を始めましょう',
+        cta_desc: 'Snowflake Marketplace 公開準備中。外部インフラ不要。',
+        cta_btn1: 'Marketplace 公開準備中',
+        cta_btn2: 'ドキュメントを見る',
+        cta_note: 'ベータ版 · 無償利用可 · Apache 2.0',
+        foot_api: 'API リファレンス',
+        foot_changelog: '更新履歴',
+        foot_privacy: 'プライバシー',
+        foot_license: 'ライセンス',
+      }
+    };
+
+    let currentLang = 'en';
+
+    function applyLang(lang) {
+      const t = translations[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) {
+          el.innerHTML = t[key];
+        }
+      });
+      document.documentElement.lang = lang;
+      document.getElementById('langToggle').textContent = lang === 'en' ? '日本語' : 'English';
+      currentLang = lang;
+    }
+
+    function toggleLang() {
+      applyLang(currentLang === 'en' ? 'ja' : 'en');
+    }
+  </script>
+</body>
+</html>
+

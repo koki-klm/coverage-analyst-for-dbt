@@ -1,0 +1,8 @@
+<!-- RoughStep ロゴ: このファイルを実際のロゴ画像に差し替えてください -->
+<svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" x="0" y="4" rx="8" fill="#11567F"/>
+  <rect x="6" y="22" width="4" height="8" rx="1" fill="#29B5E8"/>
+  <rect x="12" y="16" width="4" height="14" rx="1" fill="#29B5E8" opacity="0.7"/>
+  <rect x="18" y="10" width="4" height="20" rx="1" fill="#00C7C7"/>
+  <text x="40" y="26" font-family="Inter,sans-serif" font-weight="700" font-size="18" fill="#11567F">RoughStep</text>
+</svg>
