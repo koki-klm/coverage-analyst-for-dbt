@@ -498,7 +498,7 @@ body {
 /* ── Responsive ── */
 @media (max-width: 768px) {
   /* ヘッダー */
-  .lang-toggle { display: none; }        /* 言語切り替えはスマホで非表示 */
+  .lang-toggle { padding: 4px 8px; font-size: 0.75rem; } /* スマホでも表示・縮小 */
   .nav .btn { padding: 8px 12px; font-size: 0.82rem; }
   .header-inner { gap: 8px; }
   .back-to-home { font-size: 0.78rem !important; margin-right: 6px !important; white-space: nowrap; }
