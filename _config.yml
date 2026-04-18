@@ -1,4 +1,5 @@
-theme: jekyll-theme-cayman
-title: CoverageAnalyst for dbt
-description: Measure and visualize SQL branch coverage (C1 Coverage) for dbt models on Snowflake.
+title: RoughStep
+description: Snowflake Native Apps for Modern Data Teams — roughstep.dev
+url: "https://roughstep.dev"
 show_downloads: false
+
