@@ -3,264 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RoughStep — Snowflake Native Apps for Modern Data Teams</title>
-  <meta name="description" content="RoughStep は Snowflake エコシステムの最適化を支援するプロダクトを提供する個人事業主のポータルです。" />
+  <title>RoughStep</title>
+  <meta name="description" content="Snowflake を使うデータエンジニアが作った小さなツール集。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            snow: {
-              blue:   '#29B5E8',
-              dark:   '#11567F',
-              deeper: '#0A3B5C',
-            },
-            accent: '#00C7C7',
-            brand:  '#FF694B',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-        }
-      }
-    }
-  </script>
   <style>
+    body { font-family: 'Inter', sans-serif; }
     .gradient-text {
       background: linear-gradient(135deg, #29B5E8 0%, #00C7C7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .hero-bg {
-      background: linear-gradient(160deg, #0A3B5C 0%, #0F172A 60%, #1a1f2e 100%);
+    .card-hover {
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .product-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(41,181,232,0.12);
     }
-    .product-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(41, 181, 232, 0.15);
-    }
-    @keyframes shimmer {
-      0%   { opacity: 0.6; }
-      50%  { opacity: 1; }
-      100% { opacity: 0.6; }
-    }
-    .logo-placeholder { animation: shimmer 2.5s ease-in-out infinite; }
   </style>
 </head>
-<body class="font-sans bg-white text-slate-900 antialiased">
+<body class="bg-white text-slate-800 antialiased">
 
-  <header class="sticky top-0 z-50 bg-[#0A3B5C]/95 backdrop-blur border-b border-white/10">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3 no-underline">
-        <!-- ロゴ画像プレースホルダー: /assets/img/roughstep-logo.svg に差し替えてください -->
-        <div class="logo-placeholder w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
-        <span class="text-white font-bold text-xl tracking-tight">RoughStep</span>
+  <!-- ヘッダー -->
+  <header class="border-b border-slate-100 sticky top-0 bg-white/90 backdrop-blur z-50">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 no-underline">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-xs">RS</div>
+        <span class="font-semibold text-slate-900 text-lg">RoughStep</span>
       </a>
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="#products" class="text-slate-300 hover:text-[#29B5E8] transition-colors">Products</a>
-        <a href="#about"    class="text-slate-300 hover:text-[#29B5E8] transition-colors">About</a>
-        <a href="/privacy/" class="text-slate-300 hover:text-[#29B5E8] transition-colors">Privacy</a>
+      <nav class="flex items-center gap-5 text-sm text-slate-500">
+        <a href="#products" class="hover:text-slate-900 transition-colors">Products</a>
+        <a href="#about"    class="hover:text-slate-900 transition-colors">About</a>
+        <a href="/privacy/" class="hover:text-slate-900 transition-colors">Privacy</a>
       </nav>
-      <button id="mobileMenuBtn" class="md:hidden text-slate-300 hover:text-white" aria-label="メニュー">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-    </div>
-    <div id="mobileMenu" class="hidden md:hidden bg-[#0A3B5C] border-t border-white/10 px-6 py-4 space-y-3">
-      <a href="#products" class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">Products</a>
-      <a href="#about"    class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">About</a>
-      <a href="/privacy/" class="block text-slate-300 hover:text-[#29B5E8] transition-colors text-sm font-medium">Privacy</a>
     </div>
   </header>
 
-  <section class="hero-bg text-white">
-    <div class="max-w-6xl mx-auto px-6 py-24 md:py-36 text-center">
-      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm text-slate-300 mb-8">
-        <span class="w-2 h-2 rounded-full bg-[#00C7C7] inline-block"></span>
-        Snowflake Native Apps &middot; Built in Japan
+  <!-- ヒーロー -->
+  <section class="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
+    <p class="text-sm text-[#29B5E8] font-medium mb-4">個人開発 · Snowflake Native Apps</p>
+    <h1 class="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-5">
+      Snowflake を使う人が<br />
+      <span class="gradient-text">ほしかったツールを</span>
+    </h1>
+    <p class="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
+      データエンジニアとして日々 Snowflake を触っていて、「こういうツールあればな」と思ったものを少しずつ作っています。
+    </p>
+  </section>
+
+  <!-- 製品一覧 -->
+  <section class="max-w-4xl mx-auto px-6 pb-24" id="products">
+    <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">Products</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- CoverageAnalyst for dbt -->
+      <a href="/products/dbt-coverage/" class="card-hover block bg-slate-50 hover:bg-white border border-slate-200 rounded-2xl p-6 no-underline group">
+        <div class="flex items-start justify-between mb-4">
+          <span class="text-2xl">��</span>
+          <span class="text-xs bg-[#00C7C7]/10 text-[#00C7C7] font-semibold px-2.5 py-1 rounded-full border border-[#00C7C7]/20">Beta</span>
+        </div>
+        <h3 class="font-semibold text-slate-900 text-lg mb-2 group-hover:text-[#11567F] transition-colors">CoverageAnalyst for dbt</h3>
+        <p class="text-slate-500 text-sm leading-relaxed mb-4">
+          dbt SQL モデルの分岐カバレッジ（C1）を Snowflake 上で計測。CI/CD に組み込んでデータパイプラインの品質を確認できます。
+        </p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="bg-white border border-slate-200 text-slate-500 text-xs px-2 py-0.5 rounded-md">dbt</span>
+          <span class="bg-white border border-slate-200 text-slate-500 text-xs px-2 py-0.5 rounded-md">SQL Coverage</span>
+          <span class="bg-white border border-slate-200 text-slate-500 text-xs px-2 py-0.5 rounded-md">Snowflake Native App</span>
+        </div>
+      </a>
+
+      <!-- Coming soon -->
+      <div class="border border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-2 min-h-[180px]">
+        <span class="text-2xl text-slate-300">🛠️</span>
+        <p class="text-slate-400 text-sm font-medium">次のツールを考え中…</p>
       </div>
-      <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-        Optimize your<br />
-        <span class="gradient-text">Snowflake Ecosystem</span>
-      </h1>
-      <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-        RoughStep は、Snowflake を活用するデータチームの開発品質と生産性を高める<br class="hidden md:block" />
-        Native App を開発・提供する個人事業主のポータルです。
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="#products" class="inline-flex items-center justify-center gap-2 bg-[#29B5E8] hover:bg-[#29B5E8]/80 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
-          製品を見る
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="border-t border-slate-100 bg-slate-50" id="about">
+    <div class="max-w-4xl mx-auto px-6 py-20">
+      <div class="max-w-2xl">
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">About</h2>
+        <p class="text-slate-700 leading-relaxed mb-4">
+          RoughStep は、Snowflake を使うデータエンジニアが個人で運営しているラボです。
+          仕事で「あれば便利なのに」と感じたものを、Snowflake Native App として作って公開しています。
+        </p>
+        <p class="text-slate-500 text-sm leading-relaxed mb-6">
+          大きなプラットフォームではなく、小さくシンプルで、すぐ使えるものを目指しています。
+          Snowflake Marketplace からインストールするだけで動くので、インフラの準備は不要です。
+        </p>
+        <a href="mailto:contact@roughstep.dev" class="inline-flex items-center gap-1.5 text-sm text-[#29B5E8] hover:text-[#11567F] font-medium transition-colors">
+          contact@roughstep.dev
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
           </svg>
         </a>
-        <a href="#about" class="inline-flex items-center justify-center gap-2 border border-white/30 hover:border-[#29B5E8] text-slate-200 hover:text-[#29B5E8] font-semibold px-6 py-3 rounded-lg transition-colors">
-          RoughStep について
-        </a>
       </div>
     </div>
   </section>
 
-  <section class="bg-slate-50 border-y border-slate-200">
-    <div class="max-w-6xl mx-auto px-6 py-16">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">🏔️</div>
-          <h3 class="font-bold text-slate-800">Snowflake ネイティブ</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">すべての製品は Snowflake アカウント内で完結。データは一切外部に出ません。</p>
-        </div>
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">⚡</div>
-          <h3 class="font-bold text-slate-800">アジャイル開発支援</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">CI/CD パイプラインへのシームレスな統合。開発サイクルを止めない品質チェック。</p>
-        </div>
-        <div class="flex flex-col items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-[#11567F]/10 flex items-center justify-center text-2xl">🌐</div>
-          <h3 class="font-bold text-slate-800">日英バイリンガル対応</h3>
-          <p class="text-sm text-slate-500 leading-relaxed">UI・ドキュメント・エラーメッセージをすべて日本語・英語でサポート。</p>
-        </div>
+  <!-- フッター -->
+  <footer class="border-t border-slate-100">
+    <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-slate-500 text-sm">
+        <div class="w-5 h-5 rounded bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-[10px]">RS</div>
+        <span>RoughStep</span>
       </div>
-    </div>
-  </section>
-
-  <section class="py-24 px-6" id="products">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <p class="text-[#11567F] font-semibold text-sm uppercase tracking-widest mb-3">Products</p>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Snowflake Marketplace で提供する製品</h2>
-        <p class="text-slate-500 mt-4 max-w-xl mx-auto">現在ベータ版として開発中。Snowflake Marketplace から直接インストールできます。</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-        <article class="product-card bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          <div class="bg-gradient-to-br from-[#0A3B5C] to-[#11567F] p-6">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center text-xl">🔬</div>
-              <span class="bg-[#00C7C7]/20 text-[#00C7C7] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#00C7C7]/30">Beta</span>
-            </div>
-            <h3 class="text-white font-bold text-xl leading-snug">CoverageAnalyst<br/>for dbt</h3>
-          </div>
-          <div class="p-6 flex flex-col gap-4">
-            <p class="text-slate-600 text-sm leading-relaxed">
-              dbt SQL モデルの C1（分岐）カバレッジを Snowflake 上で計測。
-              CI/CD パイプラインにストアドプロシージャ経由で統合できます。
-            </p>
-            <div class="flex flex-wrap gap-2">
-              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">dbt</span>
-              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">SQL Coverage</span>
-              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">CI/CD</span>
-              <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-md">Streamlit UI</span>
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-auto">
-              <a href="/products/dbt-coverage/" class="inline-flex items-center gap-1.5 text-[#11567F] hover:text-[#29B5E8] font-semibold text-sm transition-colors">
-                詳細を見る
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </a>
-              <span class="text-slate-400 text-xs">Marketplace 公開予定</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="product-card bg-slate-50 rounded-2xl border border-dashed border-slate-300 overflow-hidden">
-          <div class="p-6 h-full flex flex-col items-center justify-center text-center gap-3 min-h-[280px]">
-            <div class="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center text-2xl text-slate-400">+</div>
-            <p class="text-slate-500 font-medium text-sm">次の製品を開発中</p>
-            <p class="text-slate-400 text-xs max-w-xs">Snowflake エコシステムを最適化する新しいツールをリリース予定です。</p>
-          </div>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-[#0A3B5C] text-white py-24 px-6" id="about">
-    <div class="max-w-6xl mx-auto">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <p class="text-[#29B5E8] font-semibold text-sm uppercase tracking-widest mb-4">About RoughStep</p>
-          <h2 class="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">
-            データエンジニアリングの<br />
-            <span class="gradient-text">課題に向き合う</span>
-          </h2>
-          <p class="text-slate-300 leading-relaxed mb-6">
-            RoughStep は、Snowflake を日常的に使うデータエンジニアとして感じた
-            「あったら便利なのに」を製品にする個人事業主です。
-            Snowflake Native App として開発することで、データの安全性を守りながら
-            チームの開発品質を高めるツールを提供します。
-          </p>
-          <p class="text-slate-300 leading-relaxed">
-            大企業向けの重厚なプラットフォームではなく、
-            小さく始めてすぐ価値を感じられる、アジャイルな開発チームのための製品を目指しています。
-          </p>
-        </div>
-        <div class="space-y-5">
-          <div class="flex gap-4 items-start">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🎯</div>
-            <div>
-              <h4 class="font-semibold text-white mb-1">データ品質をコードレビューの一部に</h4>
-              <p class="text-slate-400 text-sm leading-relaxed">SQL の分岐カバレッジを CI/CD に組み込み、データパイプラインのリグレッションを早期検出。</p>
-            </div>
-          </div>
-          <div class="flex gap-4 items-start">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🔒</div>
-            <div>
-              <h4 class="font-semibold text-white mb-1">データは Snowflake の外に出さない</h4>
-              <p class="text-slate-400 text-sm leading-relaxed">すべての処理をお客様の Snowflake アカウント内で完結。セキュリティとコンプライアンスを損なわない設計。</p>
-            </div>
-          </div>
-          <div class="flex gap-4 items-start">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-xl">🚀</div>
-            <div>
-              <h4 class="font-semibold text-white mb-1">Marketplace で即インストール</h4>
-              <p class="text-slate-400 text-sm leading-relaxed">インフラ構築不要。Snowflake Marketplace から数クリックで導入し、すぐに使い始められます。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="bg-slate-900 text-slate-400 py-12 px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-3">
-          <!-- ロゴ画像プレースホルダー: /assets/img/roughstep-logo.svg に差し替えてください -->
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
-          <span class="text-white font-semibold text-lg">RoughStep</span>
-        </div>
-        <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-          <a href="/products/dbt-coverage/" class="hover:text-[#29B5E8] transition-colors">CoverageAnalyst for dbt</a>
-          <a href="/privacy/"               class="hover:text-[#29B5E8] transition-colors">Privacy Policy</a>
-          <a href="mailto:contact@roughstep.dev" class="hover:text-[#29B5E8] transition-colors">Contact</a>
-        </nav>
-        <p class="text-xs text-slate-500 text-center md:text-right">
-          &copy; 2024&ndash;2026 RoughStep. All rights reserved.
-        </p>
-      </div>
+      <nav class="flex items-center gap-5 text-sm text-slate-400">
+        <a href="/products/dbt-coverage/" class="hover:text-slate-600 transition-colors">CoverageAnalyst for dbt</a>
+        <a href="/privacy/"               class="hover:text-slate-600 transition-colors">Privacy</a>
+      </nav>
+      <p class="text-xs text-slate-300">&copy; 2026 RoughStep</p>
     </div>
   </footer>
 
-  <script>
-    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('hidden');
-    });
-    document.querySelectorAll('#mobileMenu a').forEach(link => {
-      link.addEventListener('click', () => {
-        document.getElementById('mobileMenu').classList.add('hidden');
-      });
-    });
-  </script>
 </body>
 </html>
-
