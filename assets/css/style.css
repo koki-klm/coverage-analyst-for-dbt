@@ -20,13 +20,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   font-family: 'Inter', sans-serif;
   color: var(--text-primary);
   background: #fff;
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* ── Layout ── */
@@ -496,7 +497,19 @@ body {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  /* ヘッダー */
+  .lang-toggle { display: none; }        /* 言語切り替えはスマホで非表示 */
+  .nav .btn { padding: 8px 12px; font-size: 0.82rem; }
+  .header-inner { gap: 8px; }
+  .back-to-home { font-size: 0.78rem !important; margin-right: 6px !important; white-space: nowrap; }
+  .logo-text { font-size: 0.9rem; }
   .nav a:not(.btn) { display: none; }
+
+  /* コードブロック */
+  .hero-code { width: 100%; }
+  .code-block, .code-block-sm { font-size: 0.75rem; }
+
+  /* グリッド */
   .coverage-example { grid-template-columns: 1fr; }
   .cicd-grid { grid-template-columns: 1fr; }
   .step { grid-template-columns: 48px 1fr; }
