@@ -1,34 +1,29 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Privacy Policy | RoughStep</title>
-  <meta name="description" content="RoughStep および CoverageAnalyst for dbt のプライバシーポリシーです。" />
+  <meta name="description" content="RoughStep のプライバシーポリシーです。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="font-['Inter',sans-serif] bg-white text-slate-900 antialiased">
+<body class="font-sans bg-white text-slate-900 antialiased" style="font-family:'Inter',sans-serif">
 
-  <!-- ========== HEADER ========== -->
-  <header class="sticky top-0 z-50 bg-[#0A3B5C]/95 backdrop-blur border-b border-white/10">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="../" class="flex items-center gap-3 no-underline">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
-        <span class="text-white font-bold text-xl tracking-tight">RoughStep</span>
+  <header class="border-b border-slate-100 sticky top-0 bg-white/90 backdrop-blur z-50">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="../" class="flex items-center gap-2.5 no-underline">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-xs">RS</div>
+        <span class="font-semibold text-slate-900 text-lg">RoughStep</span>
       </a>
-      <nav class="flex items-center gap-4 text-sm font-medium">
-        <a href="../" class="text-slate-300 hover:text-[#29B5E8] transition-colors">← トップへ戻る</a>
-      </nav>
+      <a href="../" class="text-sm text-slate-500 hover:text-slate-900 transition-colors">back to top</a>
     </div>
   </header>
 
-  <!-- ========== MAIN ========== -->
   <main class="max-w-3xl mx-auto px-6 py-16">
 
-    <!-- パンくずリスト -->
     <nav class="flex items-center gap-2 text-sm text-slate-500 mb-8">
       <a href="../" class="hover:text-[#29B5E8] transition-colors">RoughStep</a>
       <span>/</span>
@@ -36,139 +31,76 @@
     </nav>
 
     <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Privacy Policy</h1>
-    <p class="text-slate-500 text-sm mb-1"><strong>CoverageAnalyst for dbt</strong> — RoughStep</p>
-    <p class="text-slate-400 text-xs mb-10">最終更新日: 2026-04-11</p>
+    <p class="text-slate-500 text-sm mb-1">RoughStep</p>
+    <p class="text-slate-400 text-xs mb-10">Last updated: 2026-04-11</p>
 
-    <div class="prose max-w-none space-y-10 text-slate-700 leading-relaxed">
+    <div class="space-y-10 text-slate-700 leading-relaxed">
 
-      <!-- 概要 -->
       <section>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">概要 / Overview</h2>
-        <p class="mb-4">
-          CoverageAnalyst for dbt は、Snowflake Native App として動作します。<br />
-          本アプリはお客様の <strong>Snowflake アカウント内でのみ</strong> 動作し、外部サーバーへのデータ送信は一切行いません。
+        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">このサイトについて</h2>
+        <p>
+          このサイト（roughstep.dev）は個人が運営するポータルサイトです。
+          アクセス解析・広告・トラッキングツールは一切使用していません。
+          フォームやログイン機能もないため、サイト自体が個人情報を収集することはありません。
         </p>
-        <div class="bg-[#0A3B5C]/5 border-l-4 border-[#29B5E8] rounded-r-lg p-4 text-slate-600 text-sm">
-          This app runs entirely within your Snowflake account. No data is transmitted to external servers or third parties.
-        </div>
       </section>
 
-      <!-- 収集・処理するデータ -->
       <section>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">収集・処理するデータ / Data Collected and Processed</h2>
-        <p class="mb-4">本アプリが処理するデータは以下のとおりです。</p>
-
-        <div class="overflow-x-auto rounded-xl border border-slate-200 mb-6">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-slate-50 border-b border-slate-200">
-                <th class="text-left px-4 py-3 font-semibold text-slate-700">データ</th>
-                <th class="text-left px-4 py-3 font-semibold text-slate-700">用途</th>
-                <th class="text-left px-4 py-3 font-semibold text-slate-700">保存場所</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-4 py-3 font-mono text-xs text-slate-700">dbt アーティファクト<br/><span class="text-slate-500">(manifest.json, run_results.json)</span></td>
-                <td class="px-4 py-3 text-slate-600">カバレッジ分析の入力として使用</td>
-                <td class="px-4 py-3 text-slate-600">お客様の Snowflake Stage</td>
-              </tr>
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-4 py-3 text-slate-700">分析結果<br/><span class="text-slate-500 text-xs">(カバレッジ率、分岐情報など)</span></td>
-                <td class="px-4 py-3 text-slate-600">レポート生成・履歴表示</td>
-                <td class="px-4 py-3 text-slate-600">お客様の Snowflake アカウント内テーブル</td>
-              </tr>
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-4 py-3 text-slate-700">ストアドプロシージャ呼び出しログ</td>
-                <td class="px-4 py-3 text-slate-600">Snowflake 標準の Query History に記録</td>
-                <td class="px-4 py-3 text-slate-600">お客様の Snowflake アカウント</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
-          <p class="font-semibold text-slate-800 mb-3">本アプリは以下を行いません：</p>
-          <ul class="space-y-2 text-sm text-slate-600">
-            <li class="flex items-center gap-2">
-              <span class="text-red-400 font-bold">✗</span> 外部サービスへのデータ送信
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="text-red-400 font-bold">✗</span> 個人情報の収集
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="text-red-400 font-bold">✗</span> お客様の Snowflake アカウント外へのデータ転送
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="text-red-400 font-bold">✗</span> クッキーやトラッキング技術の使用
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- データの管理 -->
-      <section>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">データの管理 / Data Control</h2>
-        <p class="mb-4">
-          お客様は Snowflake の標準機能を通じて、本アプリが保存するすべてのデータを管理・削除できます。
-        </p>
-        <ul class="space-y-3 text-sm text-slate-600">
-          <li class="flex gap-3 items-start">
-            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-[#29B5E8]/15 text-[#29B5E8] font-bold text-xs flex items-center justify-center mt-0.5">1</span>
-            <div>
-              <strong class="text-slate-800">分析履歴の削除</strong>：アプリをアンインストールすることですべてのデータが削除されます
-            </div>
-          </li>
-          <li class="flex gap-3 items-start">
-            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-[#29B5E8]/15 text-[#29B5E8] font-bold text-xs flex items-center justify-center mt-0.5">2</span>
-            <div>
-              <strong class="text-slate-800">アクセス制御</strong>：Snowflake の RBAC（ロールベースアクセス制御）によって管理されます
-            </div>
-          </li>
+        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">読み込んでいる外部サービス</h2>
+        <p class="mb-3 text-sm text-slate-600">ページ表示のために以下を読み込んでいます。</p>
+        <ul class="space-y-2 text-sm text-slate-600">
+          <li class="flex gap-2"><span class="text-slate-400">&#183;</span>Google Fonts（フォントの読み込み）</li>
+          <li class="flex gap-2"><span class="text-slate-400">&#183;</span>Tailwind CSS CDN（スタイルシートの読み込み）</li>
         </ul>
-      </section>
-
-      <!-- サードパーティ -->
-      <section>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">サードパーティ / Third Parties</h2>
-        <p>
-          本アプリはサードパーティのサービスやライブラリにデータを送信しません。<br />
-          アプリ内で使用している OSS ライブラリ（<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm font-mono text-slate-700">sqlglot</code> 等）はお客様の Snowflake 環境内で動作します。
+        <p class="mt-3 text-sm text-slate-500">
+          これらは表示のためのみに使用しており、個人を特定できる情報は送信されません。
         </p>
       </section>
 
-      <!-- お問い合わせ -->
       <section>
-        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">お問い合わせ / Contact</h2>
+        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">各製品のプライバシーポリシー</h2>
+        <p class="mb-4 text-sm text-slate-600">
+          各製品には、データ処理内容を記載した個別のプライバシーポリシーがあります。
+        </p>
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors">
+            <div>
+              <p class="font-medium text-slate-800 text-sm">CoverageAnalyst for dbt</p>
+              <p class="text-xs text-slate-400 mt-0.5">Snowflake Native App</p>
+            </div>
+            <a href="../products/dbt-coverage/privacy/" class="text-xs text-[#29B5E8] hover:underline font-medium whitespace-nowrap">
+              詳細を見る &#8594;
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">お問い合わせ</h2>
         <p>
-          プライバシーポリシーに関するご質問は、下記までご連絡ください。<br />
+          ご質問は
           <a href="mailto:contact@roughstep.dev" class="text-[#29B5E8] hover:underline font-medium">contact@roughstep.dev</a>
+          までご連絡ください。
         </p>
       </section>
 
     </div>
   </main>
 
-  <!-- ========== FOOTER ========== -->
-  <footer class="bg-slate-900 text-slate-400 py-12 px-6 mt-16">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold text-sm">RS</div>
-          <span class="text-white font-semibold text-lg">RoughStep</span>
-        </div>
-        <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-          <a href="../"                         class="hover:text-[#29B5E8] transition-colors">Home</a>
-          <a href="../products/dbt-coverage/"   class="hover:text-[#29B5E8] transition-colors">CoverageAnalyst for dbt</a>
-          <a href="../privacy/"                 class="text-[#29B5E8]">Privacy Policy</a>
-        </nav>
-        <p class="text-xs text-slate-500 text-center md:text-right">
-          &copy; 2024&ndash;2026 RoughStep. All rights reserved.
-        </p>
+  <footer class="border-t border-slate-100 mt-16">
+    <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 text-slate-500 text-sm">
+        <div class="w-5 h-5 rounded bg-gradient-to-br from-[#29B5E8] to-[#00C7C7] flex items-center justify-center text-white font-bold" style="font-size:10px">RS</div>
+        <span>RoughStep</span>
       </div>
+      <nav class="flex items-center gap-5 text-sm text-slate-400">
+        <a href="../" class="hover:text-slate-600 transition-colors">Home</a>
+        <a href="../products/dbt-coverage/" class="hover:text-slate-600 transition-colors">CoverageAnalyst for dbt</a>
+        <span class="text-[#29B5E8]">Privacy</span>
+      </nav>
+      <p class="text-xs text-slate-300">&copy; 2026 RoughStep</p>
     </div>
   </footer>
 
 </body>
 </html>
-
